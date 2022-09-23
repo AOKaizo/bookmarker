@@ -10,7 +10,7 @@ const Bookmark = db.define("Bookmark", {
   },
   name: { type: Sequelize.STRING, allowNull: false },
   url: { type: Sequelize.STRING, allowNull: false },
-  categoryId: { type: Sequelize.STRING, allowNull: false },
+  // categoryId: { type: Sequelize.STRING, allowNull: false },
 });
 
 const Category = db.define("Category", {
@@ -23,10 +23,15 @@ const Category = db.define("Category", {
   name: { type: Sequelize.STRING, allowNull: false },
 });
 
+Category.hasMany(Bookmark);
+Bookmark.belongsTo(Category);
+
 async function dbServer() {
   await db.sync();
 }
 
 dbServer();
 
-module.exports({ Bookmark, Category });
+
+
+module.exports = { Bookmark, Category };

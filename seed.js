@@ -1,26 +1,76 @@
 const Sequelize = require("sequelize");
-const tables = require('./db')
-const {Bookmark, Category} = tables
+const tables = require("./db");
+const { Bookmark, Category } = tables;
 
-
-function createBookmark(newName, newUrl, newCategory) {
-    Bookmark.create({name: newName,
-        url: newUrl,
-        category: newCategory})
+async function createBookmark(newName, newUrl, newCategoryId) {
+  await Bookmark.create({
+    name: newName,
+    url: newUrl,
+    categoryId: newCategoryId,
+  });
 }
-function createCategory(newCategory) {
-    Category.create({
-        name: newCategory})
+async function createCategory(newCategory) {
+  await Category.create({
+    name: newCategory,
+  });
 }
 
-createCategory('coding')
-createCategory('search')
-createCategory('jobs')
+async function createDB() {
+  await Bookmark.sync({ force: true });
+  await Category.sync({ force: true });
 
-createBookmark('Google', 'https://www.google.com/', 'search')
-createBookmark('Stack Overflow', 'https://stackoverflow.com/', 'code')
-createBookmark('Bing', 'https://www.bing.com/', 'search')
-createBookmark('Linkedin', 'https://www.linkedin.com/', 'jobs')
-createBookmark('Indeed', 'https://www.indeed.com/', 'jobs')
-createBookmark('MDN', 'https://www.developer.mozilla.org/en-US/', 'code')
+  const code = await createCategory("code");
+  const search = await createCategory("search");
+  const jobs = await createCategory("jobs");
+  const codeCat = await Category.findOne({
+    where: {
+      name: "code",
+    },
+  });
+  const searchCat = await Category.findOne({
+    where: {
+      name: "search",
+    },
+  });
+  const jobsCat = await Category.findOne({
+    where: {
+      name: "jobs",
+    },
+  });
+  // if you do findAll -> it assumes itll find multiple, hence it returns multiple objects in an array
+  // [{id: 1,
+  //   name: code}] -> object[0].id
+  // if you do findOne -> it gives only that instance in an object hence find"one"
+  const google = await createBookmark(
+    "Google",
+    "https://www.google.com/",
+    codeCat.id
+  );
+  const stackOverflow = await createBookmark(
+    "Stack Overflow",
+    "https://stackoverflow.com/",
+    codeCat.id
+  );
+  const bing = await createBookmark(
+    "Bing",
+    "https://www.bing.com/",
+    searchCat.id
+  );
+  const linkedin = await createBookmark(
+    "Linkedin",
+    "https://www.linkedin.com/",
+    jobsCat.id
+  );
+  const indeed = await createBookmark(
+    "Indeed",
+    "https://www.indeed.com/",
+    jobsCat.id
+  );
+  const mdn = await createBookmark(
+    "MDN",
+    "https://www.developer.mozilla.org/en-US/",
+    codeCat.id
+  );
+}
 
+createDB();
